@@ -1,0 +1,11 @@
+    Admin product list filter by category
+
+Adds a new filter option to the product list page which allows you to filter
+the products by products belonging to a specific category.
+
+WHAT DOES IT DO?
+
+  Along side the existing text filters where you can type product names
+  etc, this adds a dropdown containing category names which is used to
+  filter the product list based on what products belong to the chosen
+  category.
