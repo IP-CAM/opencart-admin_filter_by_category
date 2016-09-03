@@ -4,7 +4,7 @@
   <code>category_filter_admin_product_list</code>
   <version>1.0</version>
   <author>Nick Rhodes</author>
-  <link></link>
+  <link>https://github.com/nickrhodes-gh/opencart-extensions</link>
 
   <file path="admin/controller/catalog/product.php">
     <operation>
