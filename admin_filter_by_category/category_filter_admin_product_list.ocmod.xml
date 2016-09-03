@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+  <name>Category filter admin product list</name>
+  <code>category_filter_admin_product_list</code>
+  <version>1.0</version>
+  <author>Nick Rhodes</author>
+  <link></link>
+
+  <file path="admin/controller/catalog/product.php">
+    <operation>
+      <search><![CDATA[
+        $data['products'] = array();
+      ]]></search>
+      <add position="after"><![CDATA[
+//============================================================
+//
+//  Get filter_category if it's set and also get the category
+//  names to populate the dropdown menu
+//
+//============================================================
+
+
+    if (isset($this->request->get['filter_category'])) {
+      $filter_category = $this->request->get['filter_category'];
+    } else {
+      $filter_category = null;
+    }
+
+    if (isset($this->request->get['filter_category'])) {
+      $url .= '&filter_category=' . $this->request->get['filter_category'];
+    }
+
+
+    $data['filter_category'] = $filter_category;
+
+
+    $this->load->model('catalog/category');
+    $cat_results = $this->model_catalog_category->getCategories();
+
+    foreach ($cat_results as $result) {
+      $data['categories'][] = array(
+        'category_id' => $result['category_id'],
+        'name'        => $result['name'],
+        'sort_order'  => $result['sort_order']
+      );
+    }
+
+//============================================================
+      ]]></add>
+    </operation>
+    <operation>
+      <search><![CDATA[
+        'filter_status'   => $filter_status,
+      ]]></search>
+      <add position="after"><![CDATA[
+        'filter_category' => $filter_category,
+      ]]></add>
+    </operation>
+  </file>
+
+  <file path="admin/model/catalog/product.php">
+    <operation>
+      <search><![CDATA[
+        $sql = "SELECT * FROM " . DB_PREFIX . "product p LEFT JOIN " . DB_PREFIX . "product_description pd ON (p.product_id = pd.product_id) WHERE pd.language_id = '" . (int)$this->config->get('config_language_id') . "'";
+      ]]></search>
+      <add position="replace"><![CDATA[
+        $sql = "SELECT * FROM " . DB_PREFIX . "product p LEFT JOIN " . DB_PREFIX . "product_description pd ON (p.product_id = pd.product_id)";
+
+        if (!empty($data['filter_category'])) {
+          $sql .= " INNER JOIN " . DB_PREFIX . "product_to_category p2c ON (p.product_id = p2c.product_id) WHERE p2c.category_id = '" . (int)$data['filter_category'] . "' AND pd.language_id = '" . (int)$this->config->get('config_language_id') . "'";
+        } else {
+          $sql .= " WHERE pd.language_id = '" . (int)$this->config->get('config_language_id') . "'";
+        }      ]]></add>
+    </operation>
+  </file>
+
+  <file path="admin/view/template/catalog/product_list.tpl">
+    <operation>
+      <search><![CDATA[
+        <button type="button" id="button-filter" class="btn btn-primary pull-right"><i class="fa fa-search"></i> <?php echo $button_filter; ?></button>
+      ]]></search>
+      <add position="before"><![CDATA[
+        <!-- CATEGORY SEARCH -->
+        <div class="form-group">
+          <label class="control-label" for="input-category">Category</label>
+          <select name="filter_category" id="input-category" class="form-control">
+            <option value="*">All</option>
+            <?php foreach($categories as $category) { ?>
+              <?php if($filter_category == $category['category_id']) { ?>
+                <option value="<?php echo $category['category_id']; ?>" selected=""><?php echo $category['name']; ?></option>
+              <?php } else { ?>
+                <option value="<?php echo $category['category_id']; ?>"><?php echo $category['name']; ?></option>
+              <?php } ?>
+            <?php } ?>
+          </select>
+        </div>
+        <!-- //CATEGORY SEARCH -->
+        ]]></add>
+    </operation>
+    <operation>
+      <search><![CDATA[
+        var filter_status = $('select[name=\'filter_status\']').val();
+      ]]></search>
+      <add position="before"><![CDATA[
+  var filter_category = $('select[name=\'filter_category\']').val();
+
+  if (filter_category != '*') {
+    url += '&filter_category=' + encodeURIComponent(filter_category);
+  }
+        ]]></add>
+    </operation>
+  </file>
+
+</modification>
