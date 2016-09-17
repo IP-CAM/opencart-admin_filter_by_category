@@ -3,6 +3,9 @@
 Adds a new filter option to the product list page which allows you to filter
 the products by products belonging to a specific category.
 
+Tested Opencart versions:
+  - 2.0.3.1
+
 WHAT DOES IT DO?
 
   Along side the existing text filters where you can type product names
